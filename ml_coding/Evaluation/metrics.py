@@ -112,4 +112,25 @@ if __name__ == "__main__":
     eval = EvalMetrics()
     print(eval.recall_multi_class(y_pred, y))
 
-    # Homework write multi_class calculation for Precision
+    # Homework: write multi_class calculation for Precision
+    # 04/17/2025
+    tp = [0, 0, 0]
+    fp = [0, 0, 0]
+    tn = [0, 0, 0]
+    fn = [0, 0, 0]
+    precision = []
+    for k in range(3):
+        val = k + 1
+        for i in range(len(y_pred)):
+            if y_pred[i] == val and y[i] == val:
+                tp[k] += 1
+            if y_pred[i] == val and y[i] != val:
+                fp[k] += 1
+            if y_pred[i] != val and y[i] == val:
+                fn[k] += 1
+            if y_pred[i] != val and y[i] != val:
+                tn[k] += 1
+        if tp[val] + fp[val] == 0:
+            precision.append(0)
+        else:
+            precision.append(tp[val] / (tp[val] + fp[val]))
