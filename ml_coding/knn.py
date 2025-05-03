@@ -1,6 +1,8 @@
 import numpy as np
 import torch.nn.functional as F
 import torch
+from idna import valid_label_length
+
 
 class KNN:
     # Is KNN a supervised or unsupervised learning algorithm?
@@ -9,6 +11,13 @@ class KNN:
         # X_train, y_train, K, temp
     # What are the trainable parameters in KNN?
     # Do we need a predict function for KNN?
+
+    # Clear define distance
+    # distance metrics: Euclidean, Manhattan, Cosine
+    # Euclidean distance: sqrt(sum((x1 - x2)^2))
+    # Manhattan distance: sum(abs(x1 - x2))
+    # Cosine distance: 1 - (x1 * x2) / (||x1|| * ||x2||)
+
     def __init__(self, k, temp):
         self.k = k
         self.temp = temp
@@ -59,7 +68,12 @@ class KNN:
         scaled_sim = topk_sim / self.temp
 
         # Convert to softmax weights
-        weights = F.softmax(scaled_sim, dim=-1)  # (n_pred, k)
+        weights = F.softmax(scaled_sim, dim=-1)
+        # topk_sim = [4, 3, 3] ---> [0.4, 0.3, 0.3]
+        # topk_index = [1, 2, 1]
+        # class 1: 0.4 + 0.3
+        # class 2: 0.3
+        # (n_pred, k)
 
         # Gather labels of top-k neighbors
         topk_labels = self.y_train[topk_indices]  # (n_pred, k)
@@ -88,3 +102,9 @@ if __name__ == "__main__":
     #
     # pred_prob = knn.predict_prob(X_pred)
     # print(pred_prob)
+
+    A = torch.tensor([[1, 2, 3], [4, 5, 6]])
+    # print(torch.argsort(A, dim=-1, descending=True))
+    # print(torch.topk(A, 2, dim=-1))
+
+
