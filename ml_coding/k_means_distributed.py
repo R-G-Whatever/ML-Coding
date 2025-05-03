@@ -4,6 +4,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 class KMeans:
 
+    # where to use distributed computation?
+    # What is the time and space complexity of the Kmeans algorithm?
+
     def __init__(self, k, max_iter = 100, tol = 1e-5, n_thread = 4):
         self.k = k
         self.max_iter = max_iter

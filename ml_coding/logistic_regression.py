@@ -6,6 +6,7 @@ class LogisticRegression:
         self.lr = lr
         self.num_iter = num_iter
         self.tol = tol
+
         self.w = None
         self.bias = None
 
@@ -41,6 +42,7 @@ class LogisticRegression:
             dw = (
                 np.dot(X.T, (predict - y)) / n_samples
             )  # based on derivative of the loss function
+
             db = (
                 np.sum(predict - y) / n_samples
             )  # based on derivative of the loss function
@@ -56,7 +58,7 @@ class LogisticRegression:
                 # [1,2,3,4] --- L2 norm = np.sqrt(1**2 + 2**2 + 3**2 + 4**2) ---> scaler
                 #           --- L1 norm = (abs(1) + abs(2) + abs(3) + abs(4))
 
-            # homework 3 --- Use closed form to calculate the LR results
+        # homework 3 --- Use closed form to calculate the LR results
 
 
 # General traditional ML class structure
@@ -78,5 +80,6 @@ if __name__ == "__main__":
     print(lr.bias)
 
     # K4 - pay extra attention over float problem when divide by close to zero
-    A = 99.9e-1000
+    A = 99.9e-300
+    A = [1e-300, 5e100]
     print(1 / A)

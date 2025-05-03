@@ -57,7 +57,9 @@ class EvalMetrics:
                 recall[item] = TP / (TP + FN)
         return recall
 
-
+    # Homework 1:
+    # PR-AUC
+    # ROC-AUC
 
 
 if __name__ == "__main__":
@@ -95,7 +97,7 @@ if __name__ == "__main__":
     # K3 - matrix multiplication dot product; matrix division is item wise operation
     A = np.array([1,2,3])
     B = np.array([0,3,4])
-    print(A/B)
+    # print(A/B)
     print(A*B)
 
     # K4 - matrix multiplication use @ or np.matmul

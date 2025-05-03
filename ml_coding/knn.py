@@ -3,6 +3,12 @@ import torch.nn.functional as F
 import torch
 
 class KNN:
+    # Is KNN a supervised or unsupervised learning algorithm?
+        # KNN is a supervised learning algorithm
+    # What is the input and output of the KNN algorithm?
+        # X_train, y_train, K, temp
+    # What are the trainable parameters in KNN?
+    # Do we need a predict function for KNN?
     def __init__(self, k, temp):
         self.k = k
         self.temp = temp
@@ -17,7 +23,14 @@ class KNN:
         X_pred_norm = X_pred / X_pred.norm(dim=-1, keepdim=True)
 
         # Calculate cosine similarity between X_pred and X_train
+        # X_train: (m, n)
+        # X_pred: (m_pred, n)
+        # Time complexity: O(m_train * m_pred * n)
+
         cosine_sim = torch.matmul(X_pred_norm, X_train_norm.T)  # (n_pred, n_train)
+
+        # A, B
+        # cosine_sim = (A, A-A1, A_A2) (B, B_A1, B_A2)
 
         # Sort based on cosine similarity (highest first)
         sorted_indices = torch.argsort(cosine_sim, dim=-1, descending=True)  # (n_pred, k)
@@ -27,16 +40,51 @@ class KNN:
 
         # Perform majority voting (mode) over the k nearest labels
         majority_labels = torch.mode(nearest_labels, dim=1).values
-        return majority_labels
+        # [1,2,3,4,4,2,4,2] - Mode 2 or 4 is mode?
+        # torch.mode 2
+        return majority_labels  # shape: (n_pred,)
+
+    def predict_prob(self, X_pred):
+        # Normalize to get cosine similarity
+        X_train_norm = self.X_train / self.X_train.norm(dim=-1, keepdim=True)
+        X_pred_norm = X_pred / X_pred.norm(dim=-1, keepdim=True)
+
+        # Compute cosine similarity
+        cosine_sim = torch.matmul(X_pred_norm, X_train_norm.T)  # (n_pred, n_train)
+
+        # For each prediction, find top-k neighbors
+        topk_sim, topk_indices = torch.topk(cosine_sim, self.k, dim=-1)  # (n_pred, k)
+
+        # Apply temperature scaling
+        scaled_sim = topk_sim / self.temp
+
+        # Convert to softmax weights
+        weights = F.softmax(scaled_sim, dim=-1)  # (n_pred, k)
+
+        # Gather labels of top-k neighbors
+        topk_labels = self.y_train[topk_indices]  # (n_pred, k)
+
+        # Compute class probabilities
+        n_classes = torch.max(self.y_train).item() + 1
+        pred_probs = torch.zeros(X_pred.size(0), n_classes, device=X_pred.device)
+
+        for i in range(X_pred.size(0)):
+            for j in range(self.k):
+                label = topk_labels[i, j].item()
+                pred_probs[i, label] += weights[i, j]
+
+        return pred_probs  # shape: (n_pred, n_classes)
 
 if __name__ == "__main__":
-    knn = KNN(k=3, temp=0.1)
-    X_train = torch.rand(10, 5)  # 10 training samples, 5 features each
-    y_train = torch.randint(0, 3, (10, 1))  # 10 training labels, random integers (0, 1, 2)
-
-    knn.fit(X_train, y_train)
-
-    X_pred = torch.rand(2, 5)  # 2 prediction samples, 5 features each
-    predictions = knn.pred(X_pred)
-
-    print(predictions)
+    # knn = KNN(k=3, temp=0.1)
+    # X_train = torch.rand(100, 5)  # 10 training samples, 5 features each
+    # y_train = torch.randint(0, 3, (100, 1))  # 10 training labels, random integers (0, 1, 2)
+    #
+    # knn.fit(X_train, y_train)
+    #
+    # X_pred = torch.rand(2, 5)  # 2 prediction samples, 5 features each
+    # predictions = knn.pred(X_pred)
+    # print(predictions)
+    #
+    # pred_prob = knn.predict_prob(X_pred)
+    # print(pred_prob)
